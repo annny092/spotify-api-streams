@@ -1,32 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>scrape streams test</title>
+  <meta charset="UTF-8" />
+  <title>api streams</title>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+    #output {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #1e1e1e;
+      color: #f5f5f5;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      min-height: 100px;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      background: #007acc;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+  </style>
 </head>
 <body>
-  <textarea id="output" rows="10" cols="80" readonly></textarea><br>
-  <button onclick="runPython()">Run Code</button>
+  <h1>please work</h1>
+  <button onclick="runPython()">Run main.py</button>
+  <pre id="output"></pre>
 
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.0/full/pyodide.js"></script>
   <script>
-    let pyodide;
-
-    async function loadPyodideAndPackages() {
-      pyodide = await loadPyodide();
-      await pyodide.loadPackagesFromImports(`
-import sys
-print("Python ready! sys.version:", sys.version)
-      `);
-    }
-
     async function runPython() {
-      const code = await (await fetch("main.py")).text();  // load your file
-      let result = await pyodide.runPythonAsync(code);
-      document.getElementById("output").value = result ?? "Code ran successfully.";
-    }
+      if (!window.pyodide) {
+        document.getElementById("output").textContent = "Loading Pyodide...";
+        window.pyodide = await loadPyodide();
+      }
 
-    loadPyodideAndPackages();
+      let outputElement = document.getElementById("output");
+      outputElement.textContent = "";
+
+      // Redirect print() output from Python to the page
+      window.pyodide.setStdout({
+        batched: (text) => {
+          outputElement.textContent += text;
+        }
+      });
+
+      try {
+        // Load the Python file from your repo
+        let response = await fetch("main.py");
+        if (!response.ok) {
+          throw new Error("Could not load main.py (" + response.status + ")");
+        }
+        let code = await response.text();
+
+        // Run the code
+        await window.pyodide.runPythonAsync(code);
+      } catch (err) {
+        outputElement.textContent = "Error: " + err.message;
+      }
+    }
   </script>
 </body>
 </html>
