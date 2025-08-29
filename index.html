@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>scrape streams test</title>
+</head>
+<body>
+  <textarea id="output" rows="10" cols="80" readonly></textarea><br>
+  <button onclick="runPython()">Run Code</button>
+
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.0/full/pyodide.js"></script>
+  <script>
+    let pyodide;
+
+    async function loadPyodideAndPackages() {
+      pyodide = await loadPyodide();
+      await pyodide.loadPackagesFromImports(`
+import sys
+print("Python ready! sys.version:", sys.version)
+      `);
+    }
+
+    async function runPython() {
+      const code = await (await fetch("main.py")).text();  // load your file
+      let result = await pyodide.runPythonAsync(code);
+      document.getElementById("output").value = result ?? "Code ran successfully.";
+    }
+
+    loadPyodideAndPackages();
+  </script>
+</body>
+</html>
