@@ -1,8 +1,5 @@
-import sys
-sys.path.append(".")
-
-import handlers.totphandler as totphand
-from classes.playlist import Playlist as plabj
+from handlers import totphandler as totphand
+from playlist import Playlist as plabj
 import json
 
 obj = plabj(106) ##CHANGE: total number of songs in playlist
@@ -240,4 +237,5 @@ album()
 
 for x in songs.values():
     print(x)
+
 
