@@ -1,3 +1,6 @@
+import sys
+sys.path.append(".")
+
 import handlers.totphandler as totphand
 from classes.playlist import Playlist as plabj
 import json
@@ -237,3 +240,4 @@ album()
 
 for x in songs.values():
     print(x)
+
